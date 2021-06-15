@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0/EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper">
+	<!-- resultMap 쓰는 이유는 sql과 java가 이름을 쓰는방식이 다르기 때문에 이름을 통일 시켜줘야하기 떄문이다. -->
+	<resultMap type="map" id="maplist">
+		<result column="seq" property="seq"/>
+		<result column="mem_id" property="memId"/>
+		<result column="mem_name" property="memName"/>
+		<result column="board_subject" property="boardSubject"/>
+		<result column="board_content" property="boardContent"/>
+		<result column="reg_date" property="regDate"/>
+		<result column="upt_date" property="uptDate"/>
+		<result column="view_cnt" property="viewCnt"/>
+	</resultMap>
+
+	<select id="listPage" parameterType="map" resultMap="maplist">
+		SELECT
+			rnum
+			, seq
+			, mem_id
+			, mem_name
+			, board_subject
+			, board_content
+			, reg_date
+			, upt_date
+			, view_cnt
+		FROM (
+			SELECT
+				row_number() over(order by seq desc) rnum
+				, seq
+				, mem_id
+				, mem_name
+				, board_subject
+				, board_content
+				, reg_date
+				, upt_date
+				, view_cnt
+			FROM board_study
+			where 1=1
+			<choose>
+				<when test="searchType == 'title'">
+					and board_subject LIKE '%' || #{keyword} || '%'
+				</when>
+				<when test="searchType == 'content'">
+					and board_content LIKE '%' || #{keyword} || '%'
+				</when>
+				<when test="searchType == 'title_content'">
+					and (board_subject LIKE '%' || #{keyword} || '%'
+						or board_content LIKE '%' || #{keyword} || '%')
+				</when>
+				<when test="searchType == 'writer'">
+					and mem_name LIKE '%' || #{keyword} || '%'
+				</when>
+			</choose>
+			<if test="date1 != null and date1 != ''">
+				and to_char(reg_date, 'YYYY-MM-DD') between #{date1} and #{date2}
+			</if>
+		) where rnum between #{pageBegin} and #{pageEnd} 
+	</select>
+	
+	<select id="count" resultType="integer" parameterType="map">
+		select count(seq) 
+		from board_study
+		where 1=1 
+		<choose>
+			<when test="searchType == 'title'">
+				and board_subject LIKE '%' || #{keyword} || '%'
+			</when>
+			<when test="searchType == 'content'">
+				and board_content LIKE '%' || #{keyword} || '%'
+			</when>
+			<when test="searchType == 'title_content'">
+				and (board_subject LIKE '%' || #{keyword} || '%'
+					or board_content LIKE '%' || #{keyword} || '%')
+			</when>
+			<when test="searchType == 'writer'">
+				and mem_name LIKE '%' || #{keyword} || '%'
+			</when>
+		</choose>
+		<if test="date1 != null and date1 != ''">
+			and to_char(reg_date, 'YYYY-MM-DD') between #{date1} and #{date2}
+		</if>
+	</select>
+	
+	<insert id="write" parameterType="map">
+		INSERT INTO board_study (
+			seq
+			, mem_id
+			, mem_name
+			, board_subject
+			, board_content
+			, reg_date
+			, view_cnt
+		) VALUES (
+			(SELECT NVL(MAX(seq),0) + 1 FROM board_study)<!-- null 체크 -->
+            , #{ID}
+			, #{writer}
+            , #{title}
+            , #{content}
+            , SYSDATE
+            , 0
+		)
+	</insert>
+	
+	<select id="view" parameterType="int" resultMap="maplist">
+		SELECT
+			seq
+			, mem_id
+			, mem_name
+			, board_subject
+			, board_content
+			, reg_date
+			, upt_date
+			, view_cnt
+		FROM board_study
+		WHERE seq = #{seq} 
+	</select>
+	
+	<update id="update" parameterType="map">
+		UPDATE board_study
+		SET 
+			mem_id = #{ID}
+			, mem_name = #{writer}
+			, board_subject = #{title}
+			, board_content = #{content}
+			, upt_date = SYSDATE
+		WHERE
+			seq = #{seq}
+	</update>
+		
+	<update id="cnt" parameterType="int">
+		UPDATE board_study
+		SET
+			view_cnt = (SELECT NVL(view_cnt, 0) + 1 FROM board_study WHERE seq = #{seq})
+		WHERE
+			seq	= #{seq}	
+	</update>
+	
+	<delete id="delete" parameterType="integer">
+		DELETE FROM board_study
+		WHERE seq IN
+		<foreach collection="list" item="chk" open="(" close=")" separator=",">
+			#{chk}
+		</foreach>
+	</delete>
+</mapper>
