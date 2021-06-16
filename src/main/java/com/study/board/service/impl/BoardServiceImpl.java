@@ -28,9 +28,7 @@ public class BoardServiceImpl implements BoardService {
 		map.put("pageBegin", pageBegin);
 		map.put("pageEnd", pageEnd);
 		
-		System.out.println(pageBegin);
-		System.out.println(pageEnd);
-		return boardDao.listPage(map);
+		return boardDao.list(map);
 	}
 	
 	@Override
@@ -56,7 +54,7 @@ public class BoardServiceImpl implements BoardService {
         int blockEnd = blockBegin+BLOCK_SCALE-1;
         
         // *마지막 블록이 범위를 초과하지 않도록 계산
-        if(blockEnd > totPage) blockEnd = totPage;
+        if (blockEnd > totPage) blockEnd = totPage;
         
         // *이전을 눌렀을 때 이동할 페이지 번호
         int prevPage = (curPage == 1)? 1:(curBlock-1)*BLOCK_SCALE;
@@ -65,8 +63,7 @@ public class BoardServiceImpl implements BoardService {
         int nextPage = curBlock > totBlock ? (curBlock*BLOCK_SCALE) : (curBlock*BLOCK_SCALE)+1;
         
         // 마지막 페이지가 범위를 초과하지 않도록 처리
-        if(nextPage >= totPage) nextPage = totPage;
-        
+        if (nextPage >= totPage) nextPage = totPage;
         
         Map<String, Object> pageMap = new HashMap<String, Object>();
         pageMap.put("curBlock", curBlock);
@@ -104,10 +101,5 @@ public class BoardServiceImpl implements BoardService {
 	@Override
 	public int delete(List<Integer> list) {
 		return boardDao.delete(list);
-	}
-
-	@Override
-	public int totalCnt() {
-		return boardDao.totalCnt();
 	}
 }

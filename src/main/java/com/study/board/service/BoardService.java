@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.Map;
 
 public interface BoardService {
+	List<Map<String, Object>> list(Map<String, Object> map);
+	
+	Map<String, Object> pageService(Map<String, Object> map);
+	
 	int insert(Map<String, Object> map);
 
 	Map<String, Object> view(int seq);
@@ -13,10 +17,4 @@ public interface BoardService {
 	void updateCnt(int seq);
 
 	int delete(List<Integer> list);
-
-	int totalCnt();
-
-	List<Map<String, Object>> list(Map<String, Object> map);
-	
-	Map<String, Object> pageService(Map<String, Object> map);
 }

@@ -28,6 +28,7 @@ public class BoardController {
 		model.addAttribute("list", list);
 		model.addAttribute("pageMap", pageMap);
 		model.addAttribute("map", map);
+		
 		return "board/list";
 	}
 	

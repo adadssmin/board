@@ -25,16 +25,21 @@
 		$("#date2").val('${map.date2}');
 		
 		$("#searchBtn").click(function(){
-			$("#searchFrm").submit(function(event) {
-				event.preventDefault();
-				var when = 
-					$.ajax({
-						url: 'list'
-						, type: 'post'
-						, data: $('form').serialize()
-						, dataType: 'json'
-					})
-			});
+			$('#searchFrm').attr("action", "list").attr("method", "post").submit();
+// 			var queryString = $('#searchFrm').serialize();
+// 			alert(queryString);
+// 			$.ajax({
+// 				url: '/list'
+// 				, type: 'post'
+// 				, data: queryString
+// 				, dataType: 'json'
+// 				, error: function(xhr, status, error){
+// 	                alert(error);
+// 	            }
+// 				, success : function(json){
+// 	                alert(json);
+// 	            }
+// 			})
 		})
 	})
 	
