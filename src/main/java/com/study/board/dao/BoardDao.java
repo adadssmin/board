@@ -17,4 +17,12 @@ public interface BoardDao {
 	void updateCnt(int seq);
 
 	int delete(List<Integer> list);
+
+	int seq();
+
+	int fileInsert(Map<String, Object> fileMap);
+
+	List<Map<String, Object>> fileRead(int seq);
+
+	List<Map<String, Object>> excelList(Map<String, Object> map);
 }

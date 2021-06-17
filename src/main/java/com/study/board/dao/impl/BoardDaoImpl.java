@@ -27,15 +27,30 @@ public class BoardDaoImpl implements BoardDao{
 	}
 	
 	@Override
-	public int insert(Map<String, Object> map) {
-		return sqlSession.insert("mapper.write", map);
+	public int seq() {
+		return sqlSession.selectOne("mapper.seq");
 	}
-
+	
+	@Override
+	public int insert(Map<String, Object> map) {
+		return sqlSession.insert("mapper.insert", map);
+	}
+	
+	@Override
+	public int fileInsert(Map<String, Object> fileMap) {
+		return sqlSession.insert("mapper.fileInsert", fileMap);
+	}
+	
+	@Override
+	public List<Map<String, Object>> fileRead(int seq) {
+		return sqlSession.selectList("mapper.fileRead", seq);
+	}
+	
 	@Override
 	public Map<String, Object> view(int seq) {
 		return sqlSession.selectOne("mapper.view", seq);
 	}
-
+	
 	@Override
 	public int update(Map<String, Object> map) {
 		return sqlSession.update("mapper.update", map);
@@ -49,5 +64,10 @@ public class BoardDaoImpl implements BoardDao{
 	@Override
 	public int delete(List<Integer> list) {
 		return sqlSession.delete("mapper.delete", list);
+	}
+
+	@Override
+	public List<Map<String, Object>> excelList(Map<String, Object> map) {
+		return sqlSession.selectList("mapper.excelList", map);
 	}
 }

@@ -25,21 +25,27 @@
 		$("#date2").val('${map.date2}');
 		
 		$("#searchBtn").click(function(){
-			$('#searchFrm').attr("action", "list").attr("method", "post").submit();
-// 			var queryString = $('#searchFrm').serialize();
-// 			alert(queryString);
-// 			$.ajax({
-// 				url: '/list'
-// 				, type: 'post'
-// 				, data: queryString
-// 				, dataType: 'json'
-// 				, error: function(xhr, status, error){
-// 	                alert(error);
-// 	            }
-// 				, success : function(json){
-// 	                alert(json);
-// 	            }
-// 			})
+// 			$('#searchFrm').attr("action", "list").attr("method", "post").submit();
+// 			curPage=1&pageScale=10&searchType=&keyword=&date1=&date2=
+			$.ajax({
+				url: 'search',
+				type: 'post',
+				data: $("#searchFrm").serialize(),
+				success : function(map){
+	                $(".content").html(map);
+	            },
+				error: function(xhr, status, error){
+	                alert(error);
+	            }
+			})
+		})
+		
+		$("#title").click(function() {
+			alert(this.text());
+		})
+		
+		$("#excelBtn").click(function() {
+			location.href = 'excel';
 		})
 	})
 	
@@ -61,12 +67,12 @@
 		<span id="nav1">
 		<button class="btn" name="regBtn" id="regBtn" onclick="location.href='write'">등록</button>
 		<button class="btn" name="deletebtn" id="deleteBtn" onclick="fncGoDelete()">삭제</button>
+		<button class="btn" name="excelBtn" id="excelBtn">엑셀 다운로드</button>
 		</span>
 		<form name="searchFrm" id="searchFrm">
 		<input type="hidden" name="curPage" id="curPage" value="1">
 		<input type="hidden" name="pageScale" id="pageScale" value="10">
 			<span id="nav2">
-				<div>
 					<select name="searchType" id="searchType">
 						<option value="">선  택</option>
 						<option value="title">제  목</option>
@@ -75,12 +81,9 @@
 						<option value="writer">작성자</option>
 					</select>
 					<input type="text" name="keyword" id="keyword">
-				</div>
-				<div>
 					<input type="text" name="date1" id="date1">
 					~
 					<input type="text" name="date2" id="date2">
-				</div>
 			<input type="button" name="searchBtn" id="searchBtn" value="검색">
 			</span>
 		</form>
@@ -102,7 +105,7 @@
 						<td><input type="checkbox" name="chk" id="chk${ status.index }" value="${ list.seq }"></td>
 						<td>${ list.seq }</td>
 						<td>${ list.memName }(${ list.memId })</td>
-						<td><a href="view?seq=${ list.seq }">${ list.boardSubject }</a></td>
+						<td><a id="title" href="view?seq=${ list.seq }">${ list.boardSubject }</a></td>
 						<td>${ list.regDate }</td>
 						<td>${ list.uptDate }</td>
 						<td>${ list.viewCnt }</td>

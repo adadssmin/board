@@ -1,12 +1,17 @@
 package com.study.board.service.impl;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.study.board.dao.BoardDao;
 import com.study.board.service.BoardService;
@@ -79,15 +84,30 @@ public class BoardServiceImpl implements BoardService {
 	}
 	
 	@Override
+	public int seq() {
+		return boardDao.seq();
+	}
+	
+	@Override
 	public int insert(Map<String, Object> map) {
 		return boardDao.insert(map);
 	}
 
 	@Override
+	public int fileInsert(Map<String, Object> fileMap) {
+		return boardDao.fileInsert(fileMap);
+	}
+	
+	@Override
+	public List<Map<String, Object>> fileRead(int seq) {
+		return boardDao.fileRead(seq);
+	}
+	
+	@Override
 	public Map<String, Object> view(int seq) {
 		return boardDao.view(seq);
 	}
-
+	
 	@Override
 	public int update(Map<String, Object> map) {
 		return boardDao.update(map);
@@ -102,4 +122,10 @@ public class BoardServiceImpl implements BoardService {
 	public int delete(List<Integer> list) {
 		return boardDao.delete(list);
 	}
+
+	@Override
+	public List<Map<String, Object>> excelList(Map<String, Object> map) {
+		return boardDao.excelList(map);
+	}
+
 }

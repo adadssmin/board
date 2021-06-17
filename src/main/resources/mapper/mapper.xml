@@ -11,6 +11,12 @@
 		<result column="reg_date" property="regDate"/>
 		<result column="upt_date" property="uptDate"/>
 		<result column="view_cnt" property="viewCnt"/>
+		<result column="FILE_SEQ" property="fileSeq"/>
+		<result column="REAL_NAME" property="realName"/>
+		<result column="SAVE_NAME" property="saveName"/>
+		<result column="REG_DATE" property="regDate"/>
+		<result column="SAVE_PATH" property="savePath"/>
+		<result column="LIST_SEQ" property="listSeq"/>
 	</resultMap>
 
 	<select id="listPage" parameterType="map" resultMap="maplist">
@@ -82,7 +88,11 @@
 		</if>
 	</select>
 	
-	<insert id="write" parameterType="map">
+	<select id="seq" resultType="integer">
+		SELECT NVL(MAX(seq),0) + 1 FROM board_study
+	</select>
+	
+	<insert id="insert" parameterType="map">
 		INSERT INTO board_study (
 			seq
 			, mem_id
@@ -92,7 +102,7 @@
 			, reg_date
 			, view_cnt
 		) VALUES (
-			(SELECT NVL(MAX(seq),0) + 1 FROM board_study)<!-- null 체크 -->
+			#{seq}
             , #{ID}
 			, #{writer}
             , #{title}
@@ -101,6 +111,37 @@
             , 0
 		)
 	</insert>
+	
+	<insert id="fileInsert" parameterType="map">
+		insert into file_study_table (
+			FILE_SEQ
+			,REAL_NAME
+			,SAVE_NAME
+			,REG_DATE
+			,SAVE_PATH
+			,LIST_SEQ
+		) values (
+			(select nvl(max(file_seq),0)+1 from file_study_table)
+			,#{realName}
+			,#{saveName}
+			,sysdate
+			,#{filePath}
+			,#{listSeq}
+		)
+	</insert>
+	
+	<select id="fileRead" parameterType="int" resultMap="maplist">
+		select
+			FILE_SEQ
+			,REAL_NAME
+			,SAVE_NAME
+			,REG_DATE
+			,SAVE_PATH
+			,LIST_SEQ
+		from file_study_table
+		where 
+			LIST_SEQ = #{seq}
+	</select>
 	
 	<select id="view" parameterType="int" resultMap="maplist">
 		SELECT
@@ -143,4 +184,17 @@
 			#{chk}
 		</foreach>
 	</delete>
+	
+	<select id="excelList" parameterType="map" resultMap="maplist">
+		SELECT
+			seq
+			, mem_id
+			, mem_name
+			, board_subject
+			, board_content
+			, reg_date
+			, upt_date
+			, view_cnt
+		FROM board_study
+	</select>
 </mapper>
