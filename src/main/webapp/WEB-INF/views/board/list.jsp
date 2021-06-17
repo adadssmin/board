@@ -45,7 +45,7 @@
 		})
 		
 		$("#excelBtn").click(function() {
-			location.href = 'excel';
+			$('#searchFrm').attr("action", "excel").attr("method", "post").submit();
 		})
 	})
 	

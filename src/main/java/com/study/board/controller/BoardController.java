@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -157,13 +158,14 @@ public class BoardController {
 	}
 	
 	@RequestMapping("excel")
-	public void excel(@RequestParam Map<String, Object> map, Model model, HttpServletResponse response) throws IOException {
+	public void excel(@RequestParam Map<String, Object> map, HttpServletResponse response) throws IOException, ParseException {
 		Workbook wb = new XSSFWorkbook();
         Sheet sheet = wb.createSheet("첫번째 시트");
         Row row = null;
         Cell cell = null;
         int rowNum = 0;
-
+        List<Map<String, Object>> excelList = boardService.excelList(map);
+        
         // Header
         row = sheet.createRow(rowNum++);
         cell = row.createCell(0);
@@ -175,48 +177,64 @@ public class BoardController {
         cell = row.createCell(3);
         cell.setCellValue("제목");
         cell = row.createCell(4);
-        cell.setCellValue("작성일");
+        cell.setCellValue("내용");
         cell = row.createCell(5);
-        cell.setCellValue("수정일");
+        cell.setCellValue("작성일");
         cell = row.createCell(6);
+        cell.setCellValue("수정일");
+        cell = row.createCell(7);
         cell.setCellValue("조회수");
         
         // Body
-        List<Map<String, Object>> excelList = boardService.excelList(map);
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        
         for (Map<String, Object> excel : excelList) {
+        	String seq = excel.get("seq") + "";
+        	String memName = excel.get("memName") + "";
+        	String boardSubject = excel.get("boardSubject") + "";
+        	String boardContent = excel.get("boardContent") + "";
+        	String regDate = excel.get("regDate") + "";
+        	String uptDate = excel.get("uptDate") + "";
+        	String viewCnt = excel.get("viewCnt") + "";
             row = sheet.createRow(rowNum++);
             cell = row.createCell(0);
             cell.setCellValue("");
             cell = row.createCell(1);
-            cell.setCellValue((String) String.valueOf(excel.get("seq")));
+            cell.setCellValue((String) seq);
             cell = row.createCell(2);
-            cell.setCellValue((String) excel.get("memName"));
+            cell.setCellValue((String) memName);
             cell = row.createCell(3);
-            cell.setCellValue((String) excel.get("boardSubject"));
+            cell.setCellValue((String) boardSubject);
             cell = row.createCell(4);
-            
-            SimpleDateFormat sdf1 = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
-            String regDateStr = sdf1.format((Date) excel.get("regDate"));
-            
-            cell.setCellValue((String) regDateStr);
+            cell.setCellValue((String) boardContent);
             cell = row.createCell(5);
-            
-            SimpleDateFormat sdf2 = new SimpleDateFormat("yy-MM-dd HH:mm:ss");
-            String uptDateStr = sdf2.format((Date) excel.get("uptDate"));
-            
-            cell.setCellValue((String) uptDateStr);
+            cell.setCellValue((String) regDate);
             cell = row.createCell(6);
-            cell.setCellValue((String) String.valueOf(excel.get("viewCnt")));
+            cell.setCellValue((String) uptDate);
+            cell = row.createCell(7);
+            cell.setCellValue((String) viewCnt);
         }
-
+        
         Calendar cal = Calendar.getInstance();
-    	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        if (map.get("keyword") != "") {
+        	String keyword = map.get("keyword") + "";
+        	response.setHeader("Content-Disposition", "attachment;filename=" 
+        						+ sdf.format(cal.getTime()) 
+        						+ "_keyword_" 
+        						+ keyword
+        						+ "_excel_file.xls");
+        } else if (map.get("date1") != "" && map.get("date2") != "") {
+        	String date1 = map.get("date1") + "";
+        	String date2 = map.get("date2") + "";
+        	response.setHeader("Content-Disposition", "attachment;filename=" 
+					+ date1 + "-" + date2 
+					+ "_excel_file.xls");
+        } else {
+        	response.setHeader("Content-Disposition", "attachment;filename=" 
+					+ sdf.format(cal.getTime()) 
+					+ "_All_excel_file.xls");
+        }
         // 컨텐츠 타입과 파일명 지정
         response.setContentType("ms-vnd/excel");
-//        response.setHeader("Content-Disposition", "attachment;filename=example.xls");
-        response.setHeader("Content-Disposition", "attachment;filename="+ sdf.format(cal.getTime()) + "_excel_file.xls");
 
         // Excel File Output
         wb.write(response.getOutputStream());
