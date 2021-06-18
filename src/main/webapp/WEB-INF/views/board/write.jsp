@@ -9,7 +9,6 @@
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script>
 $(function() {
-	var i = 0;
 	$("#regBtn").click(function() {
 			$("#frm").attr("action", "insert").attr("method", "post").submit();
 	})
@@ -18,9 +17,13 @@ $(function() {
 		$("#frm").attr("action", "update").attr("method", "post").submit();
 	})
 	
+	var i = 0;
 	$("#fileAddBtn").click(function() {
-		var fileTag = "<div><input type='file' name='file"+i+"' id='file"+i+"' accept='image/*' onchange='fncFileCheck(this)'>"
-						+ "<input type='button' name='fileDelete' id='fileDelete' value='삭제'><div id='file"+i+"'></div></div>"
+		var fileTag = "<div>"
+					+ "<input type='file' name='file"+i+"' id='file"+i+"' accept='image/*' onchange='fncFileCheck(this)'>"
+					+ "<input type='button' name='fileDelete' id='fileDelete' value='삭제'>"
+					+ "<div id='file"+i+"'></div>"
+					+ "</div>";
 		$("#fileDv").append(fileTag);
 		i++;
 	})
@@ -36,32 +39,25 @@ $(function() {
 	        alert("gif, jpg, jpeg, png, bmp 파일만 업로드 해주세요.");
 	        $(file).val("");
 	        return;
+	    } else {
+		    var file1  = file.files[0];
+		    var _URL = window.URL || window.webkitURL;
+		    var img = new Image();
+		    
+		    img.src = _URL.createObjectURL(file1);
+		    img.onload = function() {
+		        if(img.width > 500 || img.height > 500) {
+		            alert("이미지 가로 500px, 세로 500px로 맞춰서 올려주세요.");
+		            $(file).val("");
+		            $(file).parent().remove();
+		        }
+		    }
 	    }
-	    
-// 	    var fileSize = this.files[0].size;
-// 	    var maxSize = 1024 * 1024;
-// 	    if(fileSize > maxSize) {
-// 	        alert("파일용량을 초과하였습니다.");
-// 	        return;
-// 	    }
-	    
-	    var file1  = file.files[0];
-	    var _URL = window.URL || window.webkitURL;
-	    var img = new Image();
-	    
-	    img.src = _URL.createObjectURL(file1);
-	    img.onload = function() {
-	        if(img.width > 500 || img.height > 500) {
-	            alert("이미지 가로 500px, 세로 500px로 맞춰서 올려주세요.");
-	            $(file).val("");
-	        } 
-	    }
-	    
 	    var reader = new FileReader(); 
 		reader.onload = function(event) {
 			var img = document.createElement("img"); 
 			img.setAttribute("src", event.target.result); 
-			document.querySelector("div#file"+i+"").appendChild(img); 
+			document.querySelector("div#"+$(file).attr('id')).appendChild(img); 
 		}; 
 		reader.readAsDataURL(event.target.files[0]);
 	}
@@ -98,8 +94,9 @@ $(function() {
 				<c:forEach items="${ fileDown }" var="file">
 					<input type="hidden" name="fileSeq" id="fileSeq">
 					<div>
-					<a href="fileDownload?saveName=${ file.saveName }&realName=${ file.realName }" 
-							id="${ file.fileseq }">${ file.realName }</a>
+					<a href="fileDownload?saveName=${ file.saveName }&realName=${ file.realName }" id="${ file.fileseq }">
+					<img src="${pageContext.request.contextPath}/resources/image/${file.saveName}">
+					${ file.realName }</a>
 					</div>
 				</c:forEach>
 				<br>

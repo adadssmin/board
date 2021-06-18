@@ -72,8 +72,7 @@ public class BoardController {
 		return "board/write";
 	}
 	
-	private static final String FILEPATH = "C:\\Users\\dev\\Desktop\\ssm\\img\\";
-	
+	private static final String FILEPATH = "C:\\Users\\dev\\Desktop\\ssm\\java\\workspaceSTS\\board\\src\\main\\webapp\\resources\\image\\";
 	@RequestMapping("insert")
 	public String insert(@RequestParam Map<String, Object> map
 						, MultipartHttpServletRequest mRequest) throws IllegalStateException, IOException {
@@ -84,34 +83,25 @@ public class BoardController {
 		if(dir.exists() == false){
 			dir.mkdirs();
 		}
-		
-		//getFileNames(단일 파일)
-		//getFiles(다중 파일)
-		
 		Iterator<String> iterator = mRequest.getFileNames();
 		while(iterator.hasNext()){
 			String realName;
 			String saveName;
-			
 			MultipartFile mFile= mRequest.getFile(iterator.next());
 			if(mFile.getSize() > 0) {
 				UUID one = UUID.randomUUID();
 				realName = mFile.getOriginalFilename();
 				saveName = one.toString() + "_" + realName;
 				mFile.transferTo(new File(FILEPATH + saveName));
-				
 				Map<String, Object> fileMap = new HashMap<String, Object>();
 				fileMap.put("realName", realName);
 				fileMap.put("saveName", saveName);
 				fileMap.put("filePath", FILEPATH);
 				fileMap.put("listSeq", seq);
-				
 				int fileInsert = boardService.fileInsert(fileMap);
 			}
 		}
-
 		int insert = boardService.insert(map);
-		
 		return "redirect:list";
 	}
 	// forward는 그 페이지 이름 그대로 넘어감(insert로 넘어감)
