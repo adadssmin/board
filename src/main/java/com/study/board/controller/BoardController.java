@@ -148,86 +148,11 @@ public class BoardController {
 	}
 	
 	@RequestMapping("excel")
-	public void excel(@RequestParam Map<String, Object> map, HttpServletResponse response) throws IOException, ParseException {
-		Workbook wb = new XSSFWorkbook();
-        Sheet sheet = wb.createSheet("첫번째 시트");
-        Row row = null;
-        Cell cell = null;
-        int rowNum = 0;
-        List<Map<String, Object>> excelList = boardService.excelList(map);
-        
-        // Header
-        row = sheet.createRow(rowNum++);
-        cell = row.createCell(0);
-        cell.setCellValue("");
-        cell = row.createCell(1);
-        cell.setCellValue("글번호");
-        cell = row.createCell(2);
-        cell.setCellValue("작성자");
-        cell = row.createCell(3);
-        cell.setCellValue("제목");
-        cell = row.createCell(4);
-        cell.setCellValue("내용");
-        cell = row.createCell(5);
-        cell.setCellValue("작성일");
-        cell = row.createCell(6);
-        cell.setCellValue("수정일");
-        cell = row.createCell(7);
-        cell.setCellValue("조회수");
-        
-        // Body
-        for (Map<String, Object> excel : excelList) {
-        	String seq = excel.get("seq") + "";
-        	String memName = excel.get("memName") + "";
-        	String boardSubject = excel.get("boardSubject") + "";
-        	String boardContent = excel.get("boardContent") + "";
-        	String regDate = excel.get("regDate") + "";
-        	String uptDate = excel.get("uptDate") + "";
-        	String viewCnt = excel.get("viewCnt") + "";
-            row = sheet.createRow(rowNum++);
-            cell = row.createCell(0);
-            cell.setCellValue("");
-            cell = row.createCell(1);
-            cell.setCellValue((String) seq);
-            cell = row.createCell(2);
-            cell.setCellValue((String) memName);
-            cell = row.createCell(3);
-            cell.setCellValue((String) boardSubject);
-            cell = row.createCell(4);
-            cell.setCellValue((String) boardContent);
-            cell = row.createCell(5);
-            cell.setCellValue((String) regDate);
-            cell = row.createCell(6);
-            cell.setCellValue((String) uptDate);
-            cell = row.createCell(7);
-            cell.setCellValue((String) viewCnt);
-        }
-        
-        Calendar cal = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-        if (map.get("keyword") != "") {
-        	String keyword = map.get("keyword") + "";
-        	response.setHeader("Content-Disposition", "attachment;filename=" 
-        						+ sdf.format(cal.getTime()) 
-        						+ "_keyword_" 
-        						+ keyword
-        						+ "_excel_file.xls");
-        } else if (map.get("date1") != "" && map.get("date2") != "") {
-        	String date1 = map.get("date1") + "";
-        	String date2 = map.get("date2") + "";
-        	response.setHeader("Content-Disposition", "attachment;filename=" 
-					+ date1 + "-" + date2 
-					+ "_excel_file.xls");
-        } else {
-        	response.setHeader("Content-Disposition", "attachment;filename=" 
-					+ sdf.format(cal.getTime()) 
-					+ "_All_excel_file.xls");
-        }
-        // 컨텐츠 타입과 파일명 지정
-        response.setContentType("ms-vnd/excel");
+	public String excel(@RequestParam Map<String, Object> map, HttpServletResponse response, Model model) throws IOException, ParseException {
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		list = boardService.excelList(map);
 
-        // Excel File Output
-        wb.write(response.getOutputStream());
-        wb.close();
+		model.addAttribute("list", list);
+		return "excelview";
 	}
 }
