@@ -40,21 +40,15 @@
 			})
 		})
 		
-		$("#title").click(function() {
-			alert(this.text());
+		$("#deleteBtn").click(function() {
+			$("#listFrm").attr("action", "delete").attr("method", "post").submit();
 		})
+		//이미지 db에도 지우기
 		
 		$("#excelBtn").click(function() {
 			$('#searchFrm').attr("action", "excel").attr("method", "post").submit();
 		})
 	})
-	
-	function fncGoDelete() {
-		var frm = document.listFrm;
-		frm.action = "delete";
-		frm.method = "post";
-		frm.submit();
-	}
 	
 	function list(num) {
 		$("#curPage").val(num);
@@ -66,7 +60,7 @@
 	<div class="nav">
 		<span id="nav1">
 		<button class="btn" name="regBtn" id="regBtn" onclick="location.href='write'">등록</button>
-		<button class="btn" name="deletebtn" id="deleteBtn" onclick="fncGoDelete()">삭제</button>
+		<button class="btn" name="deletebtn" id="deleteBtn" >삭제</button>
 		<button class="btn" name="excelBtn" id="excelBtn">엑셀 다운로드</button>
 		</span>
 		<form name="searchFrm" id="searchFrm">

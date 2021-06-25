@@ -27,5 +27,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/Users/dev/Desktop/ssm/tool/ojdbc6-11.2.0.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/dev/Desktop/ssm/tool/miplatform-3.2-20131014-103450/lib/miplatform-3.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/dev/Desktop/ssm/tool/nexacro17_xapi_JAVA_20210427(1.1.0)_1/lib/nexacro17-xapi-1.1.0.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -32,6 +32,7 @@ $(function() {
 		$(this).parent().remove();
 	})
 })
+
 	function fncFileCheck(file) {
 	    var ext = $(file).val().split(".").pop().toLowerCase();
 	    
@@ -103,7 +104,7 @@ $(function() {
 				<button name="modBtn" id="modBtn">수정</button>
 				<input type="hidden" name="seq" id="seq" value="${ view.seq }">
 			</c:if>
-			<input type="button" name="back" id="back" onclick="history.go(-1)" value="취소">
+			<input type="button" name="back" id="back" onclick="location.href='list'" value="취소">
 		</form>
 	</div>
 </body>

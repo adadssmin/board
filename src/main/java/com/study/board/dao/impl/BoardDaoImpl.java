@@ -63,6 +63,7 @@ public class BoardDaoImpl implements BoardDao{
 
 	@Override
 	public int delete(List<Integer> list) {
+		sqlSession.delete("mapper.deletefile", list);
 		return sqlSession.delete("mapper.delete", list);
 	}
 

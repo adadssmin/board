@@ -185,6 +185,14 @@
 		</foreach>
 	</delete>
 	
+	<delete id="deletefile" parameterType="integer">
+		DELETE FROM file_study_table
+		WHERE LIST_SEQ IN
+		<foreach collection="list" item="chk" open="(" close=")" separator=",">
+			#{chk}
+		</foreach>
+	</delete>
+	
 	<select id="excelList" parameterType="map" resultMap="maplist">
 		SELECT
 			seq

@@ -2,16 +2,10 @@ package com.study.board.controller;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.net.URLEncoder;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -19,14 +13,9 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.RichTextString;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,7 +23,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import com.nexacro17.xapi.data.DataSet;
+import com.nexacro17.xapi.data.PlatformData;
+import com.nexacro17.xapi.tx.HttpPlatformResponse;
+import com.nexacro17.xapi.tx.PlatformException;
+import com.nexacro17.xapi.tx.PlatformType;
 import com.study.board.service.BoardService;
+import com.tobesoft.platform.PlatformRequest;
+import com.tobesoft.platform.PlatformResponse;
+import com.tobesoft.platform.data.ColumnInfo;
+import com.tobesoft.platform.data.Dataset;
+import com.tobesoft.platform.data.DatasetList;
+import com.tobesoft.platform.data.VariableList;
 
 @Controller
 public class BoardController {
@@ -43,8 +43,7 @@ public class BoardController {
 
 	@RequestMapping("list")
 	public String list(@RequestParam Map<String, Object> map, Model model) {
-		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-		list = boardService.list(map);
+		List<Map<String, Object>> list = boardService.list(map);
 		Map<String, Object> pageMap = boardService.pageService(map);
 
 		model.addAttribute("list", list);
@@ -154,5 +153,90 @@ public class BoardController {
 
 		model.addAttribute("list", list);
 		return "excelview";
+	}
+	
+	@RequestMapping("connMi")
+	public void connect(Map<String, Object> map, HttpServletResponse response, HttpServletRequest request) throws IOException {
+		List<Map<String, Object>> list = boardService.excelList(map);
+		
+		Dataset javaDs = new Dataset("javaDs");
+		
+		javaDs.addColumn("seq", ColumnInfo.COLUMN_TYPE_INT, 500);
+		javaDs.addColumn("memName", ColumnInfo.COLUMN_TYPE_STRING, 500);
+		javaDs.addColumn("memId", ColumnInfo.COLUMN_TYPE_STRING, 500);
+		javaDs.addColumn("boardSubject", ColumnInfo.COLUMN_TYPE_STRING, 500);
+		javaDs.addColumn("boardContent", ColumnInfo.COLUMN_TYPE_STRING, 500);
+		javaDs.addColumn("regDate", ColumnInfo.COLUMN_TYPE_DATE, 500);
+		javaDs.addColumn("uptDate", ColumnInfo.COLUMN_TYPE_DATE, 500);
+		javaDs.addColumn("viewCnt", ColumnInfo.COLUMN_TYPE_INT, 500);
+		
+		for (int i = 0; i < list.size(); i++) {
+			int row = javaDs.appendRow();
+			javaDs.setColumn(row, "seq", list.get(i).get("seq").toString());
+			javaDs.setColumn(row, "memName", list.get(i).get("memName").toString());
+			javaDs.setColumn(row, "memId", list.get(i).get("memId").toString());
+			javaDs.setColumn(row, "boardSubject", list.get(i).get("boardSubject").toString());
+			if (list.get(i).get("boardContent") == null) {
+				javaDs.setColumn(row, "boardContent", "");
+			} else {
+				javaDs.setColumn(row, "boardContent", list.get(i).get("boardContent").toString());
+			}
+			javaDs.setColumn(row, "regDate", list.get(i).get("regDate").toString());
+			if (list.get(i).get("uptDate") == null) {
+				javaDs.setColumn(row, "uptDate", "");
+			} else {
+				javaDs.setColumn(row, "uptDate", list.get(i).get("uptDate").toString());
+			}
+			javaDs.setColumn(row, "viewCnt", list.get(i).get("viewCnt").toString());
+		}
+		
+		DatasetList dsl = new DatasetList();
+		VariableList vl = new VariableList();
+		
+		dsl.add(javaDs);
+		
+		PlatformResponse pRes = new PlatformResponse(response, PlatformRequest.XML, "UTF-8");
+		pRes.sendData(vl, dsl);
+	}
+	
+	@RequestMapping("connNex")
+	public void connectNex(Map<String, Object> map, HttpServletResponse response, HttpServletRequest request) throws IOException, PlatformException {
+		List<Map<String, Object>> list = boardService.excelList(map);
+		
+		PlatformData pData = new PlatformData();
+		DataSet ds = new DataSet("ds");
+		ds.addColumn("seq", ColumnInfo.COLUMN_TYPE_INT, 500);
+		ds.addColumn("memName", ColumnInfo.COLUMN_TYPE_STRING, 500);
+		ds.addColumn("memId", ColumnInfo.COLUMN_TYPE_STRING, 500);
+		ds.addColumn("boardSubject", ColumnInfo.COLUMN_TYPE_STRING, 500);
+		ds.addColumn("boardContent", ColumnInfo.COLUMN_TYPE_STRING, 500);
+		ds.addColumn("regDate", ColumnInfo.COLUMN_TYPE_STRING, 500);
+		ds.addColumn("uptDate", ColumnInfo.COLUMN_TYPE_STRING, 500);
+		ds.addColumn("viewCnt", ColumnInfo.COLUMN_TYPE_INT, 500);
+		
+		for (int i = 0; i < list.size(); i++) {
+			int row = ds.newRow();
+			ds.set(row, "seq", list.get(i).get("seq").toString());
+			ds.set(row, "memName", list.get(i).get("memName").toString());
+			ds.set(row, "memId", list.get(i).get("memId").toString());
+			ds.set(row, "boardSubject", list.get(i).get("boardSubject").toString());
+			if (list.get(i).get("boardContent") == null) {
+				ds.set(row, "boardContent", "");
+			} else {
+				ds.set(row, "boardContent", list.get(i).get("boardContent").toString());
+			}
+			ds.set(row, "regDate", list.get(i).get("regDate").toString());
+			if (list.get(i).get("uptDate") == null) {
+				ds.set(row, "uptDate", "");
+			} else {
+				ds.set(row, "uptDate", list.get(i).get("uptDate").toString());
+			}
+			ds.set(row, "viewCnt", list.get(i).get("viewCnt").toString());
+		}
+		pData.addDataSet(ds);
+		
+		HttpPlatformResponse res = new HttpPlatformResponse(response, PlatformType.CONTENT_TYPE_XML,"UTF-8");
+		res.setData(pData);
+		res.sendData();
 	}
 }
